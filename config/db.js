@@ -1,5 +1,5 @@
-require('dotenv').config(); // Load the .env file
 const mysql = require("mysql2");
+require('dotenv').config(); // Ensure dotenv is loaded here too
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
@@ -12,19 +12,15 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
-// Use the promise-based version
-const promisePool = pool.promise();
-
-// Check connection on startup
+// Test connection and log errors instead of throwing them
 pool.getConnection((err, connection) => {
   if (err) {
-    console.error("❌ Database Connection Failed!");
-    console.error("Details:", err.message);
-    // On Render, this helps you see WHY it failed without crashing the app
+    console.error("❌ MySQL Connection Error:", err.message);
+    console.log("👉 Tip: Check if XAMPP/MySQL is running or if .env values are correct.");
   } else {
-    console.log("✅ Connected to MySQL Database");
+    console.log("✅ Database Connected (Pool Initialized)");
     connection.release();
   }
 });
 
-module.exports = promisePool;
+module.exports = pool.promise();
